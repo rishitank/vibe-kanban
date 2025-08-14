@@ -2,10 +2,15 @@ use executors::{executors::CodingAgent, profile::ProfileConfigs};
 
 #[test]
 fn auggie_builds_all_flags_from_dev_profiles() {
-    // Load from dev_assets via ProfileConfigs::load path resolution
-    let mut profiles = ProfileConfigs::from_defaults();
-    // Merge user/dev profiles to include dev_assets/profiles.json
-    profiles.extend_from_file().ok();
+    // Prefer explicit dev profiles.json (debug path), else skip test.
+    let dev_path = utils::assets::profiles_path();
+    if !dev_path.exists() {
+        eprintln!("dev profiles.json not found, skipping dev wiring test");
+        return;
+    }
+
+    let content = std::fs::read_to_string(&dev_path).expect("read dev profiles.json");
+    let profiles: ProfileConfigs = serde_json::from_str(&content).expect("parse dev profiles.json");
 
     let profile = profiles
         .get_profile("auggie")

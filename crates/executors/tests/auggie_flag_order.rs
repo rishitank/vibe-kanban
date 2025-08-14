@@ -22,17 +22,28 @@ fn auggie_build_agent_cmd_orders_flags_before_prompt() {
     let agent_cmd = Auggie::build_agent_cmd(&base, Some(profile), quoted_prompt);
 
     // Flag and prompt positions
-    let mcpi = index_of(&agent_cmd, "--mcp-config ");
+    let mcpi_first = index_of(&agent_cmd, "--mcp-config ");
     let modeli = index_of(&agent_cmd, "--model ");
     let rulesi = index_of(&agent_cmd, "--rules ");
     let tokeni = index_of(&agent_cmd, "--augment-token-file ");
     let prompti = index_of(&agent_cmd, quoted_prompt);
 
     // Each present flag must appear before the prompt
-    for idx in [mcpi, modeli, rulesi, tokeni] {
+    for idx in [mcpi_first, modeli, rulesi, tokeni] {
         if idx != usize::MAX {
             assert!(idx < prompti, "flags must come before prompt: {} < {}", idx, prompti);
         }
+    }
+
+    // Inter-flag ordering if flags exist: mcp-config(s) -> --model -> --rules -> --augment-token-file -> prompt
+    if mcpi_first != usize::MAX && modeli != usize::MAX {
+        assert!(mcpi_first < modeli, "mcp-config should come before --model");
+    }
+    if modeli != usize::MAX && rulesi != usize::MAX {
+        assert!(modeli < rulesi, "--model should come before --rules");
+    }
+    if rulesi != usize::MAX && tokeni != usize::MAX {
+        assert!(rulesi < tokeni, "--rules should come before --augment-token-file");
     }
 }
 

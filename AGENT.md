@@ -38,3 +38,25 @@ When working on any task that involves changes to the backend and the frontend, 
 
 SQLX queries should be located in backend/src/models/\*
 Use getters and setters instead of raw SQL queries where possible.
+
+
+# Auggie vs other coding agents
+
+Vibe Kanban treats Auggie as a first-class coding agent alongside Claude, Gemini, Codex, Amp, Cursor, and Opencode. Highlights:
+
+- MCP parity:
+  - Auggie supports repeatable `--mcp-config` flags; VK passes one or many based on profiles
+  - Other agents use known config paths; VK manages those files where appropriate
+- Profile-driven flags (Auggie only, optional):
+  - `auggie_model`, `auggie_rules[]`, `auggie_augment_token_file` mapped to CLI flags
+- UX differences:
+  - Auggie defaults to `--print` (one-shot), ideal for CI and non-interactive tasks
+  - Interactive mode is available by removing `--print`, with logs normalized like others
+- When to prefer Auggie:
+  - You need multi-MCP composition without editing agent-owned config files
+  - You want explicit CLI-driven config and reproducible commands in logs
+- When others shine:
+  - If you rely on their native GUIs/flows or ecosystem-specific tools
+  - If your team already centralizes config in their canonical files VK manages
+
+Bottom line: Auggie is not universally “superior,” but for CLI-first, MCP-rich workflows, it’s extremely capable and now fully supported with parity features in VK.
