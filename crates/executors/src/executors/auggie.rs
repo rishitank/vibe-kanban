@@ -62,6 +62,17 @@ impl StandardCodingAgentExecutor for Auggie {
         let (shell_cmd, shell_arg) = get_shell_command();
         let base_cmd = self.command.build_initial();
         let quoted_prompt = shell_quote_single(prompt);
+        // Fetch profile once; if follow-ups are enabled, log an info to set expectations
+        let cached = crate::profile::ProfileConfigs::get_cached();
+        let profile = cached.get_profile("auggie");
+        if let Some(p) = profile {
+            if p.auggie_use_continue_followup() {
+                tracing::info!(
+                    "Auggie follow-ups enabled: VK will use --continue and ignore session_id to resume most recent session"
+                );
+            }
+        }
+
 
 
         let agent_cmd = Self::build_agent_cmd(

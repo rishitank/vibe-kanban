@@ -1,4 +1,6 @@
 use executors::{executors::CodingAgent, profile::ProfileConfigs};
+// SPDX-License-Identifier: Apache-2.0
+
 // Order: all --mcp-config paths (preserve profile order), then --model, then each --rules, then --augment-token-file,
 use executors::executors::auggie::Auggie;
 
