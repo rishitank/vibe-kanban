@@ -15,6 +15,7 @@ use crate::{
         NormalizedEntry, NormalizedEntryType, plain_text_processor::PlainTextLogProcessor,
         stderr_processor::normalize_stderr_logs, utils::EntryIndexProvider,
     },
+    profile::ProfileConfig,
 };
 
 fn shell_quote_single(s: &str) -> String {
@@ -27,6 +28,28 @@ fn shell_quote_single(s: &str) -> String {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct Auggie {
     pub command: CommandBuilder,
+}
+
+impl Auggie {
+    /// Build the agent command string from base command, profile flags, and a quoted prompt.
+    /// Exposed for tests to verify flag ordering and presence.
+    pub fn build_agent_cmd(base_cmd: &str, profile: Option<&ProfileConfig>, quoted_prompt: &str) -> String {
+        let mut flags: Vec<String> = Vec::new();
+        if let Some(profile) = profile {
+            for path in profile.get_mcp_config_paths() {
+                flags.push(format!("--mcp-config {}", path.display()));
+            }
+            for f in profile.get_auggie_flags() {
+                flags.push(f);
+            }
+        }
+        if flags.is_empty() {
+            format!("{} {}", base_cmd, quoted_prompt)
+        } else {
+            format!("{} {} {}", base_cmd, flags.join(" "), quoted_prompt)
+        }
+    }
+
 }
 
 #[async_trait]
@@ -51,11 +74,11 @@ impl StandardCodingAgentExecutor for Auggie {
             }
         }
 
-        let agent_cmd = if flags.is_empty() {
-            format!("{} {}", base_cmd, quoted_prompt)
-        } else {
-            format!("{} {} {}", base_cmd, flags.join(" "), quoted_prompt)
-        };
+        let agent_cmd = Self::build_agent_cmd(
+            &base_cmd,
+            crate::profile::ProfileConfigs::get_cached().get_profile("auggie"),
+            &quoted_prompt,
+        );
 
         let mut command = Command::new(shell_cmd);
         command

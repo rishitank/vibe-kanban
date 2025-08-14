@@ -1,0 +1,38 @@
+use executors::{executors::CodingAgent, profile::ProfileConfigs};
+use executors::executors::auggie::Auggie;
+
+fn index_of(haystack: &str, needle: &str) -> usize {
+    haystack.find(needle).unwrap_or(usize::MAX)
+}
+
+#[test]
+fn auggie_build_agent_cmd_orders_flags_before_prompt() {
+    let mut profiles = ProfileConfigs::from_defaults();
+    profiles.extend_from_file().ok(); // pull dev_assets if present
+
+    let profile = profiles.get_profile("auggie").expect("auggie profile");
+
+    // Fake base and prompt
+    let base = match &profile.default.agent {
+        CodingAgent::Auggie(a) => a.command.build_initial(),
+        _ => panic!("expected AUGGIE agent"),
+    };
+    let quoted_prompt = "\"hello world\"";
+
+    let agent_cmd = Auggie::build_agent_cmd(&base, Some(profile), quoted_prompt);
+
+    // Flag and prompt positions
+    let mcpi = index_of(&agent_cmd, "--mcp-config ");
+    let modeli = index_of(&agent_cmd, "--model ");
+    let rulesi = index_of(&agent_cmd, "--rules ");
+    let tokeni = index_of(&agent_cmd, "--augment-token-file ");
+    let prompti = index_of(&agent_cmd, quoted_prompt);
+
+    // Each present flag must appear before the prompt
+    for idx in [mcpi, modeli, rulesi, tokeni] {
+        if idx != usize::MAX {
+            assert!(idx < prompti, "flags must come before prompt: {} < {}", idx, prompti);
+        }
+    }
+}
+
