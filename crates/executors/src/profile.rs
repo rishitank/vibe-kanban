@@ -29,6 +29,10 @@ pub struct VariantAgentConfig {
     pub mcp_config_path: Option<String>,
     /// Optional multiple MCP config file paths. When provided, all will be passed (e.g., repeatable --mcp-config flags)
     pub mcp_config_paths: Option<Vec<String>>,
+    /// Auggie-specific optional flags
+    pub auggie_model: Option<String>,
+    pub auggie_rules: Option<Vec<String>>,
+    pub auggie_augment_token_file: Option<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct ProfileConfig {
@@ -63,7 +67,27 @@ impl ProfileConfig {
         }
         out
     }
+
 }
+impl ProfileConfig {
+    pub fn get_auggie_flags(&self) -> Vec<String> {
+        let mut flags = Vec::new();
+        if let Some(model) = self.default.auggie_model.as_ref() {
+            flags.push(format!("--model {}", model));
+        }
+        if let Some(rules) = self.default.auggie_rules.as_ref() {
+            for r in rules {
+                flags.push(format!("--rules {}", r));
+            }
+        }
+        if let Some(token_file) = self.default.auggie_augment_token_file.as_ref() {
+            flags.push(format!("--augment-token-file {}", token_file));
+        }
+        flags
+    }
+
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct ProfileVariantLabel {
