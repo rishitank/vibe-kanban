@@ -40,13 +40,12 @@ impl StandardCodingAgentExecutor for Auggie {
         let base_cmd = self.command.build_initial();
         let quoted_prompt = shell_quote_single(prompt);
 
-        // Build MCP config flags: profile can supply a path; if not, try agent defaults
+        // Build MCP config flags: include all provided paths
         let mut mcp_args: Vec<String> = Vec::new();
-        if let Some(profile) = crate::profile::ProfileConfigs::get_cached()
-            .get_profile("auggie")
-            .and_then(|p| p.get_mcp_config_path())
-        {
-            mcp_args.push(format!("--mcp-config {}", profile.display()));
+        if let Some(profile) = crate::profile::ProfileConfigs::get_cached().get_profile("auggie") {
+            for path in profile.get_mcp_config_paths() {
+                mcp_args.push(format!("--mcp-config {}", path.display()));
+            }
         }
 
         let agent_cmd = if mcp_args.is_empty() {

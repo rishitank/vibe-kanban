@@ -27,6 +27,8 @@ pub struct VariantAgentConfig {
     pub agent: CodingAgent,
     /// Optional profile-specific MCP config file path (absolute; supports leading ~). Overrides the default `BaseCodingAgent` config path
     pub mcp_config_path: Option<String>,
+    /// Optional multiple MCP config file paths. When provided, all will be passed (e.g., repeatable --mcp-config flags)
+    pub mcp_config_paths: Option<Vec<String>>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct ProfileConfig {
@@ -47,6 +49,19 @@ impl ProfileConfig {
             Some(path) => Some(PathBuf::from(path)),
             None => self.default.agent.default_mcp_config_path(),
         }
+    }
+
+    pub fn get_mcp_config_paths(&self) -> Vec<PathBuf> {
+        let mut out = Vec::new();
+        if let Some(p) = self.default.mcp_config_path.as_ref() {
+            out.push(PathBuf::from(p));
+        }
+        if let Some(paths) = self.default.mcp_config_paths.as_ref() {
+            for p in paths {
+                out.push(PathBuf::from(p));
+            }
+        }
+        out
     }
 }
 
