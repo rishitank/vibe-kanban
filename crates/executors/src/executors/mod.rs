@@ -87,7 +87,10 @@ impl CodingAgent {
     }
 
     pub fn supports_mcp(&self) -> bool {
-        self.default_mcp_config_path().is_some()
+        match self {
+            Self::Auggie(_) => true, // Auggie supports MCP via repeatable --mcp-config flags
+            _ => self.default_mcp_config_path().is_some(),
+        }
     }
 
     pub fn get_mcp_config(&self) -> McpConfig {
