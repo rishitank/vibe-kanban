@@ -36,6 +36,38 @@ Make sure you have authenticated with your favourite coding agent. A full list o
 npx vibe-kanban
 ```
 
+
+## Auggie CLI (Augment Code) integration
+
+Vibe Kanban includes a first-class profile for the Auggie CLI (Augment Code’s terminal agent).
+
+- Pick the "auggie" profile in Vibe Kanban to route tasks to Auggie
+- Default command: `auggie --print "<instruction>"` for one-shot, CI-friendly output
+- Interactive mode: run without `--print` if you prefer a TUI (Vibe Kanban captures stdout/stderr)
+
+MCP (Model Context Protocol):
+- Auggie accepts repeatable `--mcp-config <path>` flags
+- To pass your MCP file(s), set a profile-specific `mcp_config_path` in `profiles.json`:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_path": "/absolute/path/to/mcp.json",
+      "AUGGIE": {
+        "command": { "base": "auggie", "params": ["--print"] }
+      },
+      "variants": []
+    }
+  ]
+}
+```
+
+Notes:
+- `mcp_config_path` overrides the default; unlike other agents, Auggie has no canonical user config file path we can auto-detect. Vibe Kanban will pass your path(s) as `--mcp-config` at runtime.
+- You can maintain multiple variants with different MCP configs and switch between them.
+
 ## Documentation
 
 Please head to the [website](https://vibekanban.com) for the latest documentation and user guides.

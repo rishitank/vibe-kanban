@@ -66,7 +66,7 @@ Vibe Kanban provides a complete project management experience with these key cap
 
 **Project Repository Management**
 - Full CRUD operations for managing coding projects
-- Automatic git repository detection and validation  
+- Automatic git repository detection and validation
 - Initialize new repositories or import existing ones
 - Project-wide file search functionality
 
@@ -114,6 +114,20 @@ Vibe Kanban supports customization through its configuration system:
 ## Requirements
 
 - Node.js (for npx execution)
+
+## Auggie (Augment CLI) usage
+
+Vibe Kanban ships with a profile for the Auggie CLI.
+
+- Choose the "auggie" profile to route a task to Auggie
+- Default command: `auggie --print "<instruction>"`
+- Interactive mode: run without `--print` for a full-screen TUI
+
+MCP configuration:
+- Auggie accepts repeatable `--mcp-config <path>` flags.
+- Provide a profile `mcp_config_path` in your profiles.json to pass an MCP file path to Auggie at runtime.
+- Create variants to maintain multiple MCP configs and switch between them.
+
 - Git (for repository operations)
 - Your preferred code editor (optional, for opening task worktrees)
 
