@@ -128,6 +128,25 @@ MCP configuration:
 - Provide a profile `mcp_config_path` in your profiles.json to pass an MCP file path to Auggie at runtime.
 - Create variants to maintain multiple MCP configs and switch between them.
 
+
+### Example dev profiles.json
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": [
+        "/abs/path/tools.json",
+        "/abs/path/cloud.json"
+      ],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "variants": []
+    }
+  ]
+}
+```
+
 - Git (for repository operations)
 - Your preferred code editor (optional, for opening task worktrees)
 

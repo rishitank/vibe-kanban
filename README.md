@@ -118,6 +118,29 @@ This will start the frontend and backend with live reloading. A blank DB will be
 
 The following environment variables can be configured at build time or runtime:
 
+
+### Example profiles.json (dev)
+
+During local development, Vibe Kanban reads `dev_assets/profiles.json` when available (debug builds) or uses embedded defaults.
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": [
+        "/abs/path/tools.json",
+        "/abs/path/cloud.json"
+      ],
+      "AUGGIE": {
+        "command": { "base": "auggie", "params": ["--print"] }
+      },
+      "variants": []
+    }
+  ]
+}
+```
+
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
 | `GITHUB_CLIENT_ID` | Build-time | `Ov23li9bxz3kKfPOIsGm` | GitHub OAuth app client ID for authentication |
