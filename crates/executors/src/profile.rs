@@ -26,12 +26,17 @@ pub struct VariantAgentConfig {
     #[serde(flatten)]
     pub agent: CodingAgent,
     /// Optional profile-specific MCP config file path (absolute; supports leading ~). Overrides the default `BaseCodingAgent` config path
+    #[serde(default)]
     pub mcp_config_path: Option<String>,
     /// Optional multiple MCP config file paths. When provided, all will be passed (e.g., repeatable --mcp-config flags)
+    #[serde(default)]
     pub mcp_config_paths: Option<Vec<String>>,
     /// Auggie-specific optional flags
+    #[serde(default)]
     pub auggie_model: Option<String>,
+    #[serde(default)]
     pub auggie_rules: Option<Vec<String>>,
+    #[serde(default)]
     pub auggie_augment_token_file: Option<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]

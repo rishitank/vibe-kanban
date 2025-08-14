@@ -1,4 +1,5 @@
 use executors::{executors::CodingAgent, profile::ProfileConfigs};
+// Order: all --mcp-config paths (preserve profile order), then --model, then each --rules, then --augment-token-file,
 use executors::executors::auggie::Auggie;
 
 fn index_of(haystack: &str, needle: &str) -> usize {

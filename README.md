@@ -85,7 +85,7 @@ Example snippet in `profiles.json`:
       "label": "auggie",
       "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
       "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
-      "auggie_model": "gpt-4o-mini",
+      "auggie_model": "sonnet4",
       "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
       "auggie_augment_token_file": "/abs/token",
       "variants": []
@@ -93,6 +93,29 @@ Example snippet in `profiles.json`:
   ]
 }
 ```
+
+Supported models (from `auggie --list-models`):
+- Claude Sonnet 4 (id: `sonnet4`) – default
+- GPT-5 (id: `gpt5`)
+
+Example using `gpt5` instead:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "gpt5",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
+      "variants": []
+    }
+  ]
+}
+```
+
 
 ## Documentation
 

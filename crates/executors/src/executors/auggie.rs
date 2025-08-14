@@ -80,6 +80,12 @@ impl StandardCodingAgentExecutor for Auggie {
             &quoted_prompt,
         );
 
+        // TODO: When Auggie supports attaching to a previous session, this can be implemented:
+        // let followup_profile = crate::profile::ProfileConfigs::get_cached().get_profile("auggie");
+        // let base_cmd = self.command.build_follow_up(&[]);
+        // let quoted = shell_quote_single(prompt);
+        // let _cmd = Self::build_agent_cmd(&base_cmd, followup_profile, &quoted);
+
         let mut command = Command::new(shell_cmd);
         command
             .kill_on_drop(true)
