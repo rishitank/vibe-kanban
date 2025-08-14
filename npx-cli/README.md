@@ -183,6 +183,25 @@ Example using `gpt5` instead:
     }
   ]
 }
+
+Follow-ups (best-effort):
+- Auggie supports `--continue` to resume the last saved session.
+- Enable in profiles to allow VK follow-ups:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "auggie_enable_continue_followup": true
+    }
+  ]
+}
+```
+
+Caveat:
+- This resumes the most recent Auggie session and ignores VK’s session_id.
+
 ```
 
 - Git (for repository operations)

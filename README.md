@@ -119,6 +119,27 @@ Example using `gpt5` instead:
 
 ## Documentation
 
+Follow-ups (best-effort):
+- Auggie supports `--continue` to resume the last saved session.
+- Vibe Kanban can use this for follow-ups when you enable it explicitly in your profile:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_enable_continue_followup": true
+    }
+  ]
+}
+```
+
+Notes:
+- This ignores VK’s session_id and resumes the most recent Auggie session.
+- If you need precise session targeting, keep this disabled until the Auggie CLI exposes an explicit session selection flag.
+
+
 Please head to the [website](https://vibekanban.com) for the latest documentation and user guides.
 
 ## Support

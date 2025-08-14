@@ -38,6 +38,9 @@ pub struct VariantAgentConfig {
     pub auggie_rules: Option<Vec<String>>,
     #[serde(default)]
     pub auggie_augment_token_file: Option<String>,
+    /// Auggie follow-up behavior: when true, VK will use `--continue` for follow-ups (best effort; resumes last session, ignores VK session_id)
+    #[serde(default)]
+    pub auggie_enable_continue_followup: Option<bool>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct ProfileConfig {
@@ -112,6 +115,12 @@ impl ProfileVariantLabel {
             profile,
             variant: Some(mode),
         }
+    }
+}
+
+impl ProfileConfig {
+    pub fn auggie_use_continue_followup(&self) -> bool {
+        self.default.auggie_enable_continue_followup.unwrap_or(false)
     }
 }
 

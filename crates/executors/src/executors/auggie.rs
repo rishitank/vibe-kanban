@@ -63,16 +63,6 @@ impl StandardCodingAgentExecutor for Auggie {
         let base_cmd = self.command.build_initial();
         let quoted_prompt = shell_quote_single(prompt);
 
-        // Build Auggie-specific flags: MCP and others from profile
-        let mut flags: Vec<String> = Vec::new();
-        if let Some(profile) = crate::profile::ProfileConfigs::get_cached().get_profile("auggie") {
-            for path in profile.get_mcp_config_paths() {
-                flags.push(format!("--mcp-config {}", path.display()));
-            }
-            for f in profile.get_auggie_flags() {
-                flags.push(f);
-            }
-        }
 
         let agent_cmd = Self::build_agent_cmd(
             &base_cmd,
@@ -102,13 +92,43 @@ impl StandardCodingAgentExecutor for Auggie {
 
     async fn spawn_follow_up(
         &self,
-        _current_dir: &PathBuf,
-        _prompt: &str,
+        current_dir: &PathBuf,
+        prompt: &str,
         _session_id: &str,
     ) -> Result<AsyncGroupChild, ExecutorError> {
-        Err(ExecutorError::FollowUpNotSupported(
-            "Auggie CLI follow-up sessions are not yet supported".to_string(),
-        ))
+        let (shell_cmd, shell_arg) = get_shell_command();
+        let base_cmd = self.command.build_follow_up(&["--continue".to_string()]);
+        let quoted_prompt = shell_quote_single(prompt);
+        let cached = crate::profile::ProfileConfigs::get_cached();
+        let profile = cached.get_profile("auggie");
+
+        // Respect profile toggle: only allow best-effort --continue when explicitly enabled
+        if let Some(p) = profile {
+            if !p.auggie_use_continue_followup() {
+                return Err(ExecutorError::FollowUpNotSupported(
+                    "Auggie follow-up disabled (enable auggie_enable_continue_followup in profile)".to_string(),
+                ));
+            }
+        } else {
+            return Err(ExecutorError::FollowUpNotSupported(
+                "Auggie profile not found".to_string(),
+            ));
+        }
+
+        let agent_cmd = Self::build_agent_cmd(&base_cmd, profile, &quoted_prompt);
+
+        let mut command = Command::new(shell_cmd);
+        command
+            .kill_on_drop(true)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .current_dir(current_dir)
+            .arg(shell_arg)
+            .arg(&agent_cmd);
+
+        let child = command.group_spawn()?;
+        Ok(child)
     }
 
     fn normalize_logs(&self, msg_store: Arc<MsgStore>, _worktree_path: &PathBuf) {
