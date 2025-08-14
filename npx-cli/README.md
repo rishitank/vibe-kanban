@@ -134,14 +134,29 @@ MCP configuration:
 ```json
 {
   "profiles": [
+### Auggie-specific flags in profiles
+
+You can encode Auggie flags in `profiles.json`:
+- `auggie_model` -> `--model <id>`
+- `auggie_rules` -> repeatable `--rules <path>` entries
+- `auggie_augment_token_file` -> `--augment-token-file <path>`
+
+```json
+{
+  "profiles": [
     {
       "label": "auggie",
-      "mcp_config_paths": [
-        "/abs/path/tools.json",
-        "/abs/path/cloud.json"
-      ],
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
       "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "gpt-4o-mini",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
       "variants": []
+    }
+  ]
+}
+```
+
     }
   ]
 }

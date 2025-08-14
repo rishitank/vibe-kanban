@@ -68,6 +68,32 @@ Notes:
 - `mcp_config_path` overrides the default; unlike other agents, Auggie has no canonical user config file path we can auto-detect. Vibe Kanban will pass your path(s) as `--mcp-config` at runtime.
 - You can maintain multiple variants with different MCP configs and switch between them.
 
+
+### Auggie-specific flags
+
+Auggie accepts optional flags you can encode into profiles:
+- `auggie_model`: sets `--model <id>`
+- `auggie_rules`: array of paths; each produces a repeatable `--rules <path>`
+- `auggie_augment_token_file`: sets `--augment-token-file <path>`
+
+Example snippet in `profiles.json`:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "gpt-4o-mini",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
+      "variants": []
+    }
+  ]
+}
+```
+
 ## Documentation
 
 Please head to the [website](https://vibekanban.com) for the latest documentation and user guides.
