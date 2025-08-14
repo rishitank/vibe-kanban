@@ -188,12 +188,13 @@ mod tests {
                         CodingAgent::Codex(codex) => codex.command.build_initial(),
                         CodingAgent::Opencode(opencode) => opencode.command.build_initial(),
                         CodingAgent::Cursor(cursor) => cursor.command.build_initial(),
+                        CodingAgent::Auggie(auggie) => auggie.command.build_initial(),
                     }
                 })
                 .unwrap_or_else(|| panic!("Profile not found: {label}"))
         };
         let profiles = ProfileConfigs::from_defaults();
-        assert!(profiles.profiles.len() == 8);
+        assert!(profiles.profiles.len() == 9);
 
         let claude_code_command = get_profile_command("claude-code");
         assert!(claude_code_command.contains("npx -y @anthropic-ai/claude-code@latest"));

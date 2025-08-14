@@ -11,7 +11,7 @@ use utils::msg_store::MsgStore;
 
 use crate::{
     executors::{
-        amp::Amp, claude::ClaudeCode, codex::Codex, cursor::Cursor, gemini::Gemini,
+        amp::Amp, auggie::Auggie, claude::ClaudeCode, codex::Codex, cursor::Cursor, gemini::Gemini,
         opencode::Opencode,
     },
     mcp_config::McpConfig,
@@ -19,6 +19,7 @@ use crate::{
 };
 
 pub mod amp;
+pub mod auggie;
 pub mod claude;
 pub mod codex;
 pub mod cursor;
@@ -53,6 +54,7 @@ pub enum CodingAgent {
     Codex,
     Opencode,
     Cursor,
+    Auggie,
 }
 
 impl CodingAgent {
@@ -141,11 +143,7 @@ impl CodingAgent {
 
     pub fn default_mcp_config_path(&self) -> Option<PathBuf> {
         match self {
-            //ExecutorConfig::CharmOpencode => {
-            //dirs::home_dir().map(|home| home.join(".opencode.json"))
-            //}
             Self::ClaudeCode(_) => dirs::home_dir().map(|home| home.join(".claude.json")),
-            //ExecutorConfig::ClaudePlan => dirs::home_dir().map(|home| home.join(".claude.json")),
             Self::Opencode(_) => {
                 #[cfg(unix)]
                 {
@@ -156,7 +154,6 @@ impl CodingAgent {
                     dirs::config_dir().map(|config| config.join("opencode").join("opencode.json"))
                 }
             }
-            //ExecutorConfig::Aider => None,
             Self::Codex(_) => dirs::home_dir().map(|home| home.join(".codex").join("config.toml")),
             Self::Amp(_) => {
                 dirs::config_dir().map(|config| config.join("amp").join("settings.json"))
@@ -165,6 +162,7 @@ impl CodingAgent {
                 dirs::home_dir().map(|home| home.join(".gemini").join("settings.json"))
             }
             Self::Cursor(_) => dirs::home_dir().map(|home| home.join(".cursor").join("mcp.json")),
+            Self::Auggie(_) => None,
         }
     }
 }
