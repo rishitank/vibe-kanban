@@ -94,7 +94,7 @@ impl StandardCodingAgentExecutor for Auggie {
         &self,
         current_dir: &PathBuf,
         prompt: &str,
-        _session_id: &str,
+        session_id: &str,
     ) -> Result<AsyncGroupChild, ExecutorError> {
         let (shell_cmd, shell_arg) = get_shell_command();
         let base_cmd = self.command.build_follow_up(&["--continue".to_string()]);
@@ -114,6 +114,12 @@ impl StandardCodingAgentExecutor for Auggie {
                 "Auggie profile not found".to_string(),
             ));
         }
+        // Warn: --continue resumes the most recent Auggie session; VK session_id is ignored by Auggie CLI
+        tracing::warn!(
+            vk_session_id = %session_id,
+            "Auggie follow-up uses --continue and ignores session_id; resuming most recent Auggie session"
+        );
+
 
         let agent_cmd = Self::build_agent_cmd(&base_cmd, profile, &quoted_prompt);
 
