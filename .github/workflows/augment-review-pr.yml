@@ -16,7 +16,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && github.event.pull_request.draft == false
     steps:
       - name: Generate PR Review
-        uses: augmentcode/review-pr@3a1f3d0c0a1a9b9c8f1a5a9f9f2c7e6c1d2e3f4a
+        uses: augmentcode/review-pr@7e30c526a8a6dbb69c72d79358010579aa7d4eb9
         with:
           augment_session_auth: ${{ secrets.AUGMENT_SESSION_AUTH }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
