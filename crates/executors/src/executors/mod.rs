@@ -48,13 +48,13 @@ pub enum ExecutorError {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum CodingAgent {
-    ClaudeCode,
-    Amp,
-    Gemini,
-    Codex,
-    Opencode,
-    Cursor,
-    Auggie,
+    ClaudeCode(ClaudeCode),
+    Amp(Amp),
+    Gemini(Gemini),
+    Codex(Codex),
+    Opencode(Opencode),
+    Cursor(Cursor),
+    Auggie(Auggie),
 }
 
 impl CodingAgent {

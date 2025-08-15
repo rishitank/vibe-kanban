@@ -153,9 +153,9 @@ pub fn async_watcher(
     Ok((debouncer, rx, canonical_root))
 }
 
+#[cfg(any(test, feature = "dev-utils"))]
 #[allow(dead_code)]
 async fn async_watch<P: AsRef<Path>>(path: P) -> Result<(), FilesystemWatcherError> {
-#[allow(dead_code)]
     let (_debouncer, mut rx, _canonical_path) = async_watcher(path.as_ref().to_path_buf())?;
 
     // The debouncer is already watching the path, no need to call watch() again

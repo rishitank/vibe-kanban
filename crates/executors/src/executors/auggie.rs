@@ -79,11 +79,12 @@ impl StandardCodingAgentExecutor for Auggie {
             );
         }
 
+        // Build final agent command from base + flags + prompt
 
 
         let agent_cmd = Self::build_agent_cmd(
             &base_cmd,
-            crate::profile::ProfileConfigs::get_cached().get_profile("auggie"),
+            profile,
             &quoted_prompt,
         );
 

@@ -56,3 +56,4 @@ dunce = "1.0"
 
 [features]
 cloud = []
+dev-utils = []

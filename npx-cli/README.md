@@ -134,6 +134,16 @@ MCP configuration:
 ```json
 {
   "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "variants": []
+    }
+  ]
+}
+```
+
 ### Auggie-specific flags in profiles
 
 You can encode Auggie flags in `profiles.json`:
@@ -178,11 +188,6 @@ Example using `gpt5` instead:
   ]
 }
 ```
-
-
-    }
-  ]
-}
 
 Follow-ups (best-effort):
 - Auggie supports `--continue` to resume the last saved session.
