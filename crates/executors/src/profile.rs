@@ -80,16 +80,41 @@ impl ProfileConfig {
 impl ProfileConfig {
     pub fn get_auggie_flags(&self) -> Vec<String> {
         let mut flags = Vec::new();
+        let quote = |s: &str| -> String {
+            let escaped = s
+                .replace('\\', "\\\\")
+                .replace('"', "\\\"")
+                .replace('$', "\\$")
+                .replace('`', "\\`");
+            format!("\"{}\"", escaped)
+        };
+        let expand_tilde_str = |p: &str| -> String {
+            let rest_opt: Option<&str> = if let Some(r) = p.strip_prefix("~/") {
+                Some(r)
+            } else if let Some(r) = p.strip_prefix("~\\") {
+                Some(r)
+            } else {
+                None
+            };
+            if let Some(rest) = rest_opt {
+                if let Some(home) = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE")) {
+                    return PathBuf::from(home).join(rest).to_string_lossy().into_owned();
+                }
+            }
+            p.to_string()
+        };
         if let Some(model) = self.default.auggie_model.as_ref() {
-            flags.push(format!("--model {}", model));
+            flags.push(format!("--model {}", quote(model)));
         }
         if let Some(rules) = self.default.auggie_rules.as_ref() {
             for r in rules {
-                flags.push(format!("--rules {}", r));
+                let r = expand_tilde_str(r);
+                flags.push(format!("--rules {}", quote(&r)));
             }
         }
         if let Some(token_file) = self.default.auggie_augment_token_file.as_ref() {
-            flags.push(format!("--augment-token-file {}", token_file));
+            let t = expand_tilde_str(token_file);
+            flags.push(format!("--augment-token-file {}", quote(&t)));
         }
         flags
     }

@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install git-cliff
+        uses: kenji-miyake/setup-git-cliff@v2
+        with:
+          git-cliff-version: latest
+      - name: Generate release notes
+        run: |
+          git cliff --tag ${GITHUB_REF_NAME} --output CHANGELOG.md
+      - name: Commit CHANGELOG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore(release): update CHANGELOG for ${GITHUB_REF_NAME}" || echo "No changes"
+          git push || echo "No push"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

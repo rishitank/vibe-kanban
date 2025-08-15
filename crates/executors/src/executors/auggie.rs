@@ -18,8 +18,13 @@ use crate::{
     profile::ProfileConfig,
 };
 
-fn shell_quote_single(s: &str) -> String {
-    let escaped = s.replace('"', "\\\"");
+fn shell_quote_arg(s: &str) -> String {
+    // Cross-shell-friendly double-quote escaping. Avoids word splitting and most expansions.
+    let escaped = s
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('$', "\\$")
+        .replace('`', "\\`");
     format!("\"{}\"", escaped)
 }
 
@@ -37,7 +42,8 @@ impl Auggie {
         let mut flags: Vec<String> = Vec::new();
         if let Some(profile) = profile {
             for path in profile.get_mcp_config_paths() {
-                flags.push(format!("--mcp-config {}", path.display()));
+                let p = path.to_string_lossy();
+                flags.push(format!("--mcp-config {}", shell_quote_arg(&p)));
             }
             for f in profile.get_auggie_flags() {
                 flags.push(f);
@@ -61,7 +67,7 @@ impl StandardCodingAgentExecutor for Auggie {
     ) -> Result<AsyncGroupChild, ExecutorError> {
         let (shell_cmd, shell_arg) = get_shell_command();
         let base_cmd = self.command.build_initial();
-        let quoted_prompt = shell_quote_single(prompt);
+        let quoted_prompt = shell_quote_arg(prompt);
         // Fetch profile once; if follow-ups are enabled, log an info to set expectations
         let cached = crate::profile::ProfileConfigs::get_cached();
         let profile = cached.get_profile("auggie");
@@ -109,7 +115,7 @@ impl StandardCodingAgentExecutor for Auggie {
     ) -> Result<AsyncGroupChild, ExecutorError> {
         let (shell_cmd, shell_arg) = get_shell_command();
         let base_cmd = self.command.build_follow_up(&["--continue".to_string()]);
-        let quoted_prompt = shell_quote_single(prompt);
+        let quoted_prompt = shell_quote_arg(prompt);
         let cached = crate::profile::ProfileConfigs::get_cached();
         let profile = cached.get_profile("auggie");
 
