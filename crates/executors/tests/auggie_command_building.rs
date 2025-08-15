@@ -11,14 +11,9 @@ fn auggie_builds_command_with_multiple_mcp_and_flags() {
         .find(|p| p.default.label == "auggie")
         .expect("missing auggie profile in defaults or dev_assets");
 
-    // Ensure accessor merges single + multiple paths and returns flags
-    let paths = profile.get_mcp_config_paths();
-    // We don't assert exact paths because dev paths are examples; just ensure it's a Vec
-    assert!(paths.len() >= 0);
-
-    let flags = profile.get_auggie_flags();
-    // Flags may be empty in defaults; the accessor should still return a Vec
-    assert!(flags.len() >= 0);
+    // Accessors should not panic even if defaults have no extra paths/flags
+    let _paths = profile.get_mcp_config_paths();
+    let _flags = profile.get_auggie_flags();
 
     // Build initial base command using a dummy executor config
     // The enum variant for AUGGIE carries the command builder
