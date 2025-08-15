@@ -36,7 +36,7 @@ fn auggie_build_agent_cmd_orders_flags_before_prompt() {
     // Each present flag must appear before the prompt
     for idx in [mcpi_first, modeli, rulesi, tokeni] {
         if idx != usize::MAX {
-            assert!(idx < prompti, "flags must come before prompt: {} < {}", idx, prompti);
+            assert!(idx < prompti, "flags must come before prompt: {idx} < {prompti}");
         }
     }
     if mcpi_last != usize::MAX {

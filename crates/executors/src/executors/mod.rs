@@ -67,12 +67,11 @@ impl CodingAgent {
             ProfileConfigs::get_cached().get_profile(&profile_variant_label.profile)
         {
             if let Some(variant_name) = &profile_variant_label.variant {
-                if let Some(variant) = profile_config.get_variant(&variant_name) {
+                if let Some(variant) = profile_config.get_variant(variant_name) {
                     Ok(variant.agent.clone())
                 } else {
                     Err(ExecutorError::UnknownExecutorType(format!(
-                        "Unknown mode: {}",
-                        variant_name
+                        "Unknown mode: {variant_name}"
                     )))
                 }
             } else {
@@ -171,6 +170,9 @@ impl CodingAgent {
 }
 
 #[async_trait]
+    // NOTE: We accept &PathBuf here for backward compatibility across executors
+    // Clippy: ptr_arg — suppress for this public trait to avoid a breaking change in this pass
+    #[allow(clippy::ptr_arg)]
 #[enum_dispatch(CodingAgent)]
 pub trait StandardCodingAgentExecutor {
     async fn spawn(

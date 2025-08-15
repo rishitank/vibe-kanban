@@ -273,6 +273,7 @@ impl Gemini {
     }
 
     /// Build comprehensive prompt with session context for follow-up execution
+        #[allow(clippy::ptr_arg)]
     async fn build_followup_prompt(
         current_dir: &PathBuf,
         prompt: &str,

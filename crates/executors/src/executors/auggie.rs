@@ -25,7 +25,7 @@ fn shell_quote_arg(s: &str) -> String {
         .replace('"', "\\\"")
         .replace('$', "\\$")
         .replace('`', "\\`");
-    format!("\"{}\"", escaped)
+    format!("\"{escaped}\"")
 }
 
 
@@ -50,9 +50,9 @@ impl Auggie {
             }
         }
         if flags.is_empty() {
-            format!("{} {}", base_cmd, quoted_prompt)
+            format!("{base_cmd} {quoted_prompt}")
         } else {
-            format!("{} {} {}", base_cmd, flags.join(" "), quoted_prompt)
+            format!("{base_cmd} {} {quoted_prompt}", flags.join(" "))
         }
     }
 
@@ -71,12 +71,12 @@ impl StandardCodingAgentExecutor for Auggie {
         // Fetch profile once; if follow-ups are enabled, log an info to set expectations
         let cached = crate::profile::ProfileConfigs::get_cached();
         let profile = cached.get_profile("auggie");
-        if let Some(p) = profile {
-            if p.auggie_use_continue_followup() {
-                tracing::info!(
-                    "Auggie follow-ups enabled: VK will use --continue and ignore session_id to resume most recent session"
-                );
-            }
+        if let Some(p) = profile
+            && p.auggie_use_continue_followup()
+        {
+            tracing::info!(
+                "Auggie follow-ups enabled: VK will use --continue and ignore session_id to resume most recent session"
+            );
         }
 
 

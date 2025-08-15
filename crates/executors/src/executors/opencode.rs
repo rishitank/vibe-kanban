@@ -204,7 +204,9 @@ impl Opencode {
     }
 
     /// Create normalized entry from content
+        #[allow(clippy::ptr_arg)]
     pub fn create_normalized_entry(content: String, worktree_path: &PathBuf) -> NormalizedEntry {
+        #[allow(clippy::ptr_arg)]
         // Check if this is a tool call
         if let Some(tool_call) = ToolCall::parse(&content) {
             let tool_name = tool_call.tool.name();

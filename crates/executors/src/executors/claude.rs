@@ -152,6 +152,7 @@ impl ClaudeLogProcessor {
     }
 
     /// Process raw logs and convert them to normalized entries with patches
+        #[allow(clippy::ptr_arg)]
     fn process_logs(
         _executor: &ClaudeCode,
         msg_store: Arc<MsgStore>,
@@ -267,6 +268,7 @@ impl ClaudeLogProcessor {
         }
     }
 
+        #[allow(clippy::wrong_self_convention)]
     /// Convert Claude JSON to normalized entries
     fn to_normalized_entries(
         &mut self,

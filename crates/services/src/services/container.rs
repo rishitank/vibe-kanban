@@ -124,6 +124,7 @@ pub trait ContainerService {
 
     async fn try_commit_changes(&self, ctx: &ExecutionContext) -> Result<(), ContainerError>;
 
+    #[allow(clippy::ptr_arg)]
     async fn copy_project_files(
         &self,
         source_dir: &PathBuf,

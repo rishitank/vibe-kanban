@@ -41,11 +41,13 @@ impl ExecutorAction {
         &self.typ
     }
 
-    pub fn next_action(&self) -> Option<&Box<ExecutorAction>> {
-        self.next_action.as_ref()
+    pub fn next_action(&self) -> Option<&ExecutorAction> {
+        self.next_action.as_deref()
     }
 }
 
+    // Clippy: ptr_arg — backward compatibility for trait
+    #[allow(clippy::ptr_arg)]
 #[async_trait]
 #[enum_dispatch(ExecutorActionType)]
 pub trait Executable {

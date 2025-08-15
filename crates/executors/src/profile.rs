@@ -86,7 +86,7 @@ impl ProfileConfig {
                 .replace('"', "\\\"")
                 .replace('$', "\\$")
                 .replace('`', "\\`");
-            format!("\"{}\"", escaped)
+            format!("\"{escaped}\"")
         };
         let expand_tilde_str = |p: &str| -> String {
             let rest_opt: Option<&str> = if let Some(r) = p.strip_prefix("~/") {
@@ -96,10 +96,10 @@ impl ProfileConfig {
             } else {
                 None
             };
-            if let Some(rest) = rest_opt {
-                if let Some(home) = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE")) {
-                    return PathBuf::from(home).join(rest).to_string_lossy().into_owned();
-                }
+            if let Some(rest) = rest_opt
+                && let Some(home) = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE"))
+            {
+                return PathBuf::from(home).join(rest).to_string_lossy().into_owned();
             }
             p.to_string()
         };
@@ -349,7 +349,7 @@ mod tests {
             crate::executors::CodingAgent::ClaudeCode(claude) => {
                 assert_eq!(claude.command.base, "npx claude");
                 assert_eq!(claude.command.params.as_ref().unwrap()[0], "--test");
-                assert_eq!(claude.plan, true);
+                assert!(claude.plan);
             }
             _ => panic!("Expected ClaudeCode agent"),
         }

@@ -1,4 +1,4 @@
-use executors::{command::CommandBuilder, executors::CodingAgent, profile::ProfileConfigs};
+use executors::{executors::CodingAgent, profile::ProfileConfigs};
 
 #[test]
 fn auggie_builds_command_with_multiple_mcp_and_flags() {
