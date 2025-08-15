@@ -18,8 +18,6 @@ use crate::{
     profile::ProfileConfig,
 };
 
-// use shared shell helper from utils
-
 
 /// Executor for running Auggie CLI and normalizing its output
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
@@ -72,8 +70,6 @@ impl StandardCodingAgentExecutor for Auggie {
         }
 
         // Build final agent command from base + flags + prompt
-
-
         let agent_cmd = Self::build_agent_cmd(
             &base_cmd,
             profile,

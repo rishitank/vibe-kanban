@@ -57,20 +57,38 @@ impl ProfileConfig {
     }
 
     pub fn get_mcp_config_path(&self) -> Option<PathBuf> {
+        let expand = |p: &str| -> PathBuf {
+            if let Some(rest) = p.strip_prefix("~/").or_else(|| p.strip_prefix("~\\")) {
+                if let Some(home) = dirs::home_dir() { return home.join(rest); }
+            } else if p == "~" && let Some(home) = dirs::home_dir() {
+                return home;
+            }
+            PathBuf::from(p)
+        };
         match self.default.mcp_config_path.as_ref() {
-            Some(path) => Some(PathBuf::from(path)),
+            Some(path) => Some(expand(path)),
             None => self.default.agent.default_mcp_config_path(),
         }
     }
 
     pub fn get_mcp_config_paths(&self) -> Vec<PathBuf> {
+        fn expand_tilde(p: &str) -> PathBuf {
+            if let Some(rest) = p.strip_prefix("~/").or_else(|| p.strip_prefix("~\\")) {
+                if let Some(home) = dirs::home_dir() {
+                    return home.join(rest);
+                }
+            } else if p == "~" && let Some(home) = dirs::home_dir() {
+                return home;
+            }
+            PathBuf::from(p)
+        }
         let mut out = Vec::new();
         if let Some(p) = self.default.mcp_config_path.as_ref() {
-            out.push(PathBuf::from(p));
+            out.push(expand_tilde(p));
         }
         if let Some(paths) = self.default.mcp_config_paths.as_ref() {
             for p in paths {
-                out.push(PathBuf::from(p));
+                out.push(expand_tilde(p));
             }
         }
         out
