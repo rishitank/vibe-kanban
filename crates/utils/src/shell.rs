@@ -18,6 +18,18 @@ pub fn get_shell_command() -> (&'static str, &'static str) {
     }
 }
 
+/// Quote a single shell argument safely using double quotes and escaping.
+/// This avoids word splitting and most expansions across common shells.
+pub fn shell_quote_arg(s: &str) -> String {
+    let escaped = s
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('$', "\\$")
+        .replace('`', "\\`");
+    format!("\"{escaped}\"")
+}
+
+
 /// Resolves the full path of an executable using the system's PATH environment variable.
 pub fn resolve_executable_path(executable: &str) -> Option<String> {
     which::which(executable)

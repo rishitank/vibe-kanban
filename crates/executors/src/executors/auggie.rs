@@ -6,7 +6,7 @@ use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::process::Command;
 use ts_rs::TS;
-use utils::{msg_store::MsgStore, shell::get_shell_command};
+use utils::{msg_store::MsgStore, shell::{get_shell_command, shell_quote_arg}};
 
 use crate::{
     command::CommandBuilder,
@@ -18,15 +18,7 @@ use crate::{
     profile::ProfileConfig,
 };
 
-fn shell_quote_arg(s: &str) -> String {
-    // Cross-shell-friendly double-quote escaping. Avoids word splitting and most expansions.
-    let escaped = s
-        .replace('\\', "\\\\")
-        .replace('"', "\\\"")
-        .replace('$', "\\$")
-        .replace('`', "\\`");
-    format!("\"{escaped}\"")
-}
+// use shared shell helper from utils
 
 
 /// Executor for running Auggie CLI and normalizing its output

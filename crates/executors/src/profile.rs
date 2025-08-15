@@ -80,14 +80,7 @@ impl ProfileConfig {
 impl ProfileConfig {
     pub fn get_auggie_flags(&self) -> Vec<String> {
         let mut flags = Vec::new();
-        let quote = |s: &str| -> String {
-            let escaped = s
-                .replace('\\', "\\\\")
-                .replace('"', "\\\"")
-                .replace('$', "\\$")
-                .replace('`', "\\`");
-            format!("\"{escaped}\"")
-        };
+        let quote = |s: &str| -> String { utils::shell::shell_quote_arg(s) };
         let expand_tilde_str = |p: &str| -> String {
             let rest_opt: Option<&str> = if let Some(r) = p.strip_prefix("~/") {
                 Some(r)
