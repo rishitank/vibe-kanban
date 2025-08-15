@@ -202,8 +202,6 @@ Follow-ups (best-effort):
 Caveat:
 - This resumes the most recent Auggie session and ignores VK’s session_id.
 
-```
-
 - Git (for repository operations)
 - Your preferred code editor (optional, for opening task worktrees)
 

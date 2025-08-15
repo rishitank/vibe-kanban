@@ -26,10 +26,12 @@ fn auggie_build_agent_cmd_orders_flags_before_prompt() {
 
     // Flag and prompt positions
     let mcpi_first = index_of(&agent_cmd, "--mcp-config ");
+    let mcpi_last = agent_cmd.rfind("--mcp-config ").unwrap_or(usize::MAX);
     let modeli = index_of(&agent_cmd, "--model ");
     let rulesi = index_of(&agent_cmd, "--rules ");
     let tokeni = index_of(&agent_cmd, "--augment-token-file ");
     let prompti = index_of(&agent_cmd, quoted_prompt);
+    assert!(prompti != usize::MAX, "quoted prompt must appear in the final command");
 
     // Each present flag must appear before the prompt
     for idx in [mcpi_first, modeli, rulesi, tokeni] {
@@ -37,16 +39,17 @@ fn auggie_build_agent_cmd_orders_flags_before_prompt() {
             assert!(idx < prompti, "flags must come before prompt: {} < {}", idx, prompti);
         }
     }
-
-    // Inter-flag ordering if flags exist: mcp-config(s) -> --model -> --rules -> --augment-token-file -> prompt
-    if mcpi_first != usize::MAX && modeli != usize::MAX {
-        assert!(mcpi_first < modeli, "mcp-config should come before --model");
-    }
-    if modeli != usize::MAX && rulesi != usize::MAX {
-        assert!(modeli < rulesi, "--model should come before --rules");
-    }
-    if rulesi != usize::MAX && tokeni != usize::MAX {
-        assert!(rulesi < tokeni, "--rules should come before --augment-token-file");
+    if mcpi_last != usize::MAX {
+        assert!(mcpi_last < prompti, "all --mcp-config flags must come before the prompt");
+        if modeli != usize::MAX {
+            assert!(mcpi_last < modeli, "all --mcp-config flags must come before --model");
+        }
+        if rulesi != usize::MAX {
+            assert!(mcpi_last < rulesi, "all --mcp-config flags must come before --rules");
+        }
+        if tokeni != usize::MAX {
+            assert!(mcpi_last < tokeni, "all --mcp-config flags must come before --augment-token-file");
+        }
     }
 }
 
