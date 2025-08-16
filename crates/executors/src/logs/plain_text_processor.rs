@@ -120,6 +120,7 @@ impl PlainTextBuffer {
     }
 
     /// Return the total number of lines.
+    #[allow(dead_code)]
     pub fn line_count(&self) -> usize {
         self.lines.len()
     }
@@ -158,8 +159,12 @@ impl Default for PlainTextBuffer {
 }
 
 /// Optional content formatting function. Can be used post-process raw output before creating normalized entries.
+// Suppress high type complexity warnings for configurable function types in public API
+#[allow(clippy::type_complexity)]
 pub type FormatChunkFn = Box<dyn Fn(Option<&str>, String) -> String + Send + 'static>;
 
+// Suppress high type complexity warnings for configurable function types in public API
+#[allow(clippy::type_complexity)]
 /// Optional predicate function to determine message boundaries. This enables detecting tool calls interleaved with assistant messages.
 pub type MessageBoundaryPredicateFn =
     Box<dyn Fn(&[String]) -> Option<MessageBoundary> + Send + 'static>;
@@ -305,6 +310,7 @@ impl PlainTextLogProcessor {
     /// * `format_chunk` - Optional function to fix raw output before creating normalized entries.
     /// * `message_boundary_predicate` - Optional function to determine custom message boundaries. Useful when content is heterogeneous (e.g., tool calls interleaved with assistant messages).
     /// * `index_provider` - Required sharable atomic counter for tracking entry indices.
+    #[allow(clippy::type_complexity)]
     ///
     /// When both `size_threshold` and `time_gap` are `None`, a default size threshold of 8 KiB is used.
     #[builder]

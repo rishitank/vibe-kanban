@@ -11,7 +11,7 @@ use utils::msg_store::MsgStore;
 
 use crate::{
     executors::{
-        amp::Amp, claude::ClaudeCode, codex::Codex, cursor::Cursor, gemini::Gemini,
+        amp::Amp, auggie::Auggie, claude::ClaudeCode, codex::Codex, cursor::Cursor, gemini::Gemini,
         opencode::Opencode,
     },
     mcp_config::McpConfig,
@@ -19,6 +19,7 @@ use crate::{
 };
 
 pub mod amp;
+pub mod auggie;
 pub mod claude;
 pub mod codex;
 pub mod cursor;
@@ -47,12 +48,13 @@ pub enum ExecutorError {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum CodingAgent {
-    ClaudeCode,
-    Amp,
-    Gemini,
-    Codex,
-    Opencode,
-    Cursor,
+    ClaudeCode(ClaudeCode),
+    Amp(Amp),
+    Gemini(Gemini),
+    Codex(Codex),
+    Opencode(Opencode),
+    Cursor(Cursor),
+    Auggie(Auggie),
 }
 
 impl CodingAgent {
@@ -65,12 +67,11 @@ impl CodingAgent {
             ProfileConfigs::get_cached().get_profile(&profile_variant_label.profile)
         {
             if let Some(variant_name) = &profile_variant_label.variant {
-                if let Some(variant) = profile_config.get_variant(&variant_name) {
+                if let Some(variant) = profile_config.get_variant(variant_name) {
                     Ok(variant.agent.clone())
                 } else {
                     Err(ExecutorError::UnknownExecutorType(format!(
-                        "Unknown mode: {}",
-                        variant_name
+                        "Unknown mode: {variant_name}"
                     )))
                 }
             } else {
@@ -85,7 +86,10 @@ impl CodingAgent {
     }
 
     pub fn supports_mcp(&self) -> bool {
-        self.default_mcp_config_path().is_some()
+        match self {
+            Self::Auggie(_) => true, // Auggie supports MCP via repeatable --mcp-config flags
+            _ => self.default_mcp_config_path().is_some(),
+        }
     }
 
     pub fn get_mcp_config(&self) -> McpConfig {
@@ -141,11 +145,7 @@ impl CodingAgent {
 
     pub fn default_mcp_config_path(&self) -> Option<PathBuf> {
         match self {
-            //ExecutorConfig::CharmOpencode => {
-            //dirs::home_dir().map(|home| home.join(".opencode.json"))
-            //}
             Self::ClaudeCode(_) => dirs::home_dir().map(|home| home.join(".claude.json")),
-            //ExecutorConfig::ClaudePlan => dirs::home_dir().map(|home| home.join(".claude.json")),
             Self::Opencode(_) => {
                 #[cfg(unix)]
                 {
@@ -156,7 +156,6 @@ impl CodingAgent {
                     dirs::config_dir().map(|config| config.join("opencode").join("opencode.json"))
                 }
             }
-            //ExecutorConfig::Aider => None,
             Self::Codex(_) => dirs::home_dir().map(|home| home.join(".codex").join("config.toml")),
             Self::Amp(_) => {
                 dirs::config_dir().map(|config| config.join("amp").join("settings.json"))
@@ -165,11 +164,15 @@ impl CodingAgent {
                 dirs::home_dir().map(|home| home.join(".gemini").join("settings.json"))
             }
             Self::Cursor(_) => dirs::home_dir().map(|home| home.join(".cursor").join("mcp.json")),
+            Self::Auggie(_) => None,
         }
     }
 }
 
 #[async_trait]
+    // NOTE: We accept &PathBuf here for backward compatibility across executors
+    // Clippy: ptr_arg — suppress for this public trait to avoid a breaking change in this pass
+    #[allow(clippy::ptr_arg)]
 #[enum_dispatch(CodingAgent)]
 pub trait StandardCodingAgentExecutor {
     async fn spawn(

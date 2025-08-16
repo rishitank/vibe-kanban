@@ -26,12 +26,16 @@ pub enum EventError {
 
 #[derive(Clone)]
 pub struct EventService {
+    #[allow(dead_code)]
     msg_store: Arc<MsgStore>,
+    #[allow(dead_code)]
     db: DBService,
+    #[allow(dead_code)]
     entry_count: Arc<RwLock<usize>>,
+
 }
 
-#[derive(EnumString, Display)]
+#[derive(Debug, EnumString, Display)]
 enum HookTables {
     #[strum(to_string = "tasks")]
     Tasks,
@@ -101,6 +105,7 @@ impl EventService {
                     let msg_store_for_hook = msg_store_for_hook.clone();
                     let db = db_for_hook.clone();
 
+                            // Only handle known tables; ignore others implicitly
                     if let Ok(table) = HookTables::from_str(hook.table) {
                         let rowid = hook.rowid;
                         runtime_handle.spawn(async move {
@@ -150,7 +155,6 @@ impl EventService {
                                         }
                                     }
                                 }
-                                _ => unreachable!(),
                             };
 
                             let next_entry_count = {

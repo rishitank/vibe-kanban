@@ -59,5 +59,8 @@ jobs:
         run: |
           cargo fmt --all -- --check
           npm run generate-types:check
-          cargo test --workspace
-          cargo clippy --all --all-targets --all-features
+          cargo test --workspace -- --nocapture
+          # Fail on warnings in CI
+          RUSTFLAGS="-D warnings" cargo clippy --all --all-targets --all-features -- -D warnings
+          # TypeScript strict typecheck
+          npm run check

@@ -1,0 +1,24 @@
+# git-cliff configuration
+[changelog]
+header = "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n"
+body = "{{#each releases}}\n## {{#if @root.relink}}{{title}}{{else}}{{version}}{{/if}} - {{#if date}}{{date}}{{/if}}\n\n{{#if summary}}{{summary}}\n\n{{/if}}{{#each commits}}{{#if scope}}- **{{scope}}**: {{/if}}{{#if breaking}}[BREAKING] {{/if}}{{message}}{{#if footers}} ({{#each footers}}{{this}}{{#unless @last}}; {{/unless}}{{/each}}){{/if}}\n{{/each}}\n\n{{/each}}"
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+
+[git.commit_parsers]
+feat = { pattern = "^feat", group = "Features" }
+fix = { pattern = "^fix", group = "Bug Fixes" }
+docs = { pattern = "^docs", group = "Documentation" }
+chore = { pattern = "^chore", group = "Chores" }
+refactor = { pattern = "^refactor", group = "Refactoring" }
+test = { pattern = "^test", group = "Tests" }
+perf = { pattern = "^perf", group = "Performance" }
+ci = { pattern = "^ci", group = "CI" }
+
+[git.tag_pattern]
+pattern = "^v[0-9]+\.[0-9]+\.[0-9]+$"
+

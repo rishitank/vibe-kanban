@@ -401,6 +401,7 @@ pub enum FileChange {
 }
 
 impl CodexJson {
+    #[allow(clippy::ptr_arg)]
     /// Convert to normalized entries
     pub fn to_normalized_entries(&self, current_dir: &PathBuf) -> Option<Vec<NormalizedEntry>> {
         match self {

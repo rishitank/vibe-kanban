@@ -66,7 +66,7 @@ Vibe Kanban provides a complete project management experience with these key cap
 
 **Project Repository Management**
 - Full CRUD operations for managing coding projects
-- Automatic git repository detection and validation  
+- Automatic git repository detection and validation
 - Initialize new repositories or import existing ones
 - Project-wide file search functionality
 
@@ -114,6 +114,99 @@ Vibe Kanban supports customization through its configuration system:
 ## Requirements
 
 - Node.js (for npx execution)
+
+## Auggie (Augment CLI) usage
+
+Vibe Kanban ships with a profile for the Auggie CLI.
+
+- Choose the "auggie" profile to route a task to Auggie
+- Default command: `auggie --print "<instruction>"`
+- Interactive mode: run without `--print` for a full-screen TUI
+
+MCP configuration:
+- Auggie accepts repeatable `--mcp-config <path>` flags.
+- Provide a profile `mcp_config_path` in your profiles.json to pass an MCP file path to Auggie at runtime.
+- Create variants to maintain multiple MCP configs and switch between them.
+
+
+### Example dev profiles.json
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "variants": []
+    }
+  ]
+}
+```
+
+### Auggie-specific flags in profiles
+
+You can encode Auggie flags in `profiles.json`:
+- `auggie_model` -> `--model <id>`
+- `auggie_rules` -> repeatable `--rules <path>` entries
+- `auggie_augment_token_file` -> `--augment-token-file <path>`
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "sonnet4",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
+      "variants": []
+    }
+  ]
+}
+```
+
+Supported models for Auggie (from `auggie --list-models`):
+- Claude Sonnet 4 (id: `sonnet4`) – default
+- GPT-5 (id: `gpt5`)
+
+Example using `gpt5` instead:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "gpt5",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
+      "variants": []
+    }
+  ]
+}
+```
+
+Follow-ups (best-effort):
+- Auggie supports `--continue` to resume the last saved session.
+- Enable in profiles to allow VK follow-ups:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "auggie_enable_continue_followup": true
+    }
+  ]
+}
+```
+
+Caveat:
+- This resumes the most recent Auggie session and ignores VK’s session_id.
+
 - Git (for repository operations)
 - Your preferred code editor (optional, for opening task worktrees)
 

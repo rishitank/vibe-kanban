@@ -26,7 +26,21 @@ pub struct VariantAgentConfig {
     #[serde(flatten)]
     pub agent: CodingAgent,
     /// Optional profile-specific MCP config file path (absolute; supports leading ~). Overrides the default `BaseCodingAgent` config path
+    #[serde(default)]
     pub mcp_config_path: Option<String>,
+    /// Optional multiple MCP config file paths. When provided, all will be passed (e.g., repeatable --mcp-config flags)
+    #[serde(default)]
+    pub mcp_config_paths: Option<Vec<String>>,
+    /// Auggie-specific optional flags
+    #[serde(default)]
+    pub auggie_model: Option<String>,
+    #[serde(default)]
+    pub auggie_rules: Option<Vec<String>>,
+    #[serde(default)]
+    pub auggie_augment_token_file: Option<String>,
+    /// Auggie follow-up behavior: when true, VK will use `--continue` for follow-ups (best effort; resumes last session, ignores VK session_id)
+    #[serde(default)]
+    pub auggie_enable_continue_followup: Option<bool>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct ProfileConfig {
@@ -43,12 +57,84 @@ impl ProfileConfig {
     }
 
     pub fn get_mcp_config_path(&self) -> Option<PathBuf> {
+        let expand = |p: &str| -> PathBuf {
+            if let Some(rest) = p.strip_prefix("~/").or_else(|| p.strip_prefix("~\\")) {
+                if let Some(home) = dirs::home_dir() { return home.join(rest); }
+            } else if p == "~" && let Some(home) = dirs::home_dir() {
+                return home;
+            }
+            PathBuf::from(p)
+        };
         match self.default.mcp_config_path.as_ref() {
-            Some(path) => Some(PathBuf::from(path)),
+            Some(path) => Some(expand(path)),
             None => self.default.agent.default_mcp_config_path(),
         }
     }
+
+    pub fn get_mcp_config_paths(&self) -> Vec<PathBuf> {
+        fn expand_tilde(p: &str) -> PathBuf {
+            if let Some(rest) = p.strip_prefix("~/").or_else(|| p.strip_prefix("~\\")) {
+                if let Some(home) = dirs::home_dir() {
+                    return home.join(rest);
+                }
+            } else if p == "~" && let Some(home) = dirs::home_dir() {
+                return home;
+            }
+            PathBuf::from(p)
+        }
+        let mut out = Vec::new();
+        if self.default.mcp_config_path.is_some() && self.default.mcp_config_paths.is_some() {
+            tracing::warn!("Both mcp_config_path and mcp_config_paths specified; using both");
+        }
+        if let Some(p) = self.default.mcp_config_path.as_ref() {
+            out.push(expand_tilde(p));
+        }
+        if let Some(paths) = self.default.mcp_config_paths.as_ref() {
+            for p in paths {
+                out.push(expand_tilde(p));
+            }
+        }
+        out
+    }
+
 }
+impl ProfileConfig {
+    pub fn get_auggie_flags(&self) -> Vec<String> {
+        let mut flags = Vec::new();
+        let quote = |s: &str| -> String { utils::shell::shell_quote_arg(s) };
+        let expand_tilde_str = |p: &str| -> String {
+            let rest_opt: Option<&str> = if let Some(r) = p.strip_prefix("~/") {
+                Some(r)
+            } else if let Some(r) = p.strip_prefix("~\\") {
+                Some(r)
+            } else {
+                None
+            };
+            if let Some(rest) = rest_opt
+                && let Some(home) = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE"))
+            {
+                return PathBuf::from(home).join(rest).to_string_lossy().into_owned();
+            }
+            p.to_string()
+        };
+        if let Some(model) = self.default.auggie_model.as_ref() {
+            flags.push(format!("--model {}", quote(model)));
+        }
+        if let Some(rules) = self.default.auggie_rules.as_ref() {
+            for r in rules {
+                let r = expand_tilde_str(r);
+                flags.push(format!("--rules {}", quote(&r)));
+            }
+        }
+        if let Some(token_file) = self.default.auggie_augment_token_file.as_ref() {
+            let t = expand_tilde_str(token_file);
+            flags.push(format!("--augment-token-file {}", quote(&t)));
+        }
+        flags
+    }
+
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, TS)]
 pub struct ProfileVariantLabel {
@@ -68,6 +154,12 @@ impl ProfileVariantLabel {
             profile,
             variant: Some(mode),
         }
+    }
+}
+
+impl ProfileConfig {
+    pub fn auggie_use_continue_followup(&self) -> bool {
+        self.default.auggie_enable_continue_followup.unwrap_or(false)
     }
 }
 
@@ -188,12 +280,13 @@ mod tests {
                         CodingAgent::Codex(codex) => codex.command.build_initial(),
                         CodingAgent::Opencode(opencode) => opencode.command.build_initial(),
                         CodingAgent::Cursor(cursor) => cursor.command.build_initial(),
+                        CodingAgent::Auggie(auggie) => auggie.command.build_initial(),
                     }
                 })
                 .unwrap_or_else(|| panic!("Profile not found: {label}"))
         };
         let profiles = ProfileConfigs::from_defaults();
-        assert!(profiles.profiles.len() == 8);
+        assert!(profiles.profiles.len() == 9);
 
         let claude_code_command = get_profile_command("claude-code");
         assert!(claude_code_command.contains("npx -y @anthropic-ai/claude-code@latest"));
@@ -270,7 +363,7 @@ mod tests {
             crate::executors::CodingAgent::ClaudeCode(claude) => {
                 assert_eq!(claude.command.base, "npx claude");
                 assert_eq!(claude.command.params.as_ref().unwrap()[0], "--test");
-                assert_eq!(claude.plan, true);
+                assert!(claude.plan);
             }
             _ => panic!("Expected ClaudeCode agent"),
         }

@@ -375,7 +375,7 @@ impl GitHubService {
             .send()
             .await
             .map_err(|e| {
-                GitHubServiceError::Repository(format!("Failed to list repositories: {}", e))
+                GitHubServiceError::Repository(format!("Failed to list repositories: {e}"))
             })?;
 
         let repositories: Vec<RepositoryInfo> = repos_page

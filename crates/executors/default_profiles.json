@@ -133,6 +133,19 @@
         }
       },
       "variants": []
+    },
+    {
+      "label": "auggie",
+      "mcp_config_path": null,
+      "AUGGIE": {
+        "command": {
+          "base": "auggie",
+          "params": [
+            "--print"
+          ]
+        }
+      },
+      "variants": []
     }
   ]
 }

@@ -36,7 +36,109 @@ Make sure you have authenticated with your favourite coding agent. A full list o
 npx vibe-kanban
 ```
 
+
+## Auggie CLI (Augment Code) integration
+
+Vibe Kanban includes a first-class profile for the Auggie CLI (Augment Code’s terminal agent).
+
+- Pick the "auggie" profile in Vibe Kanban to route tasks to Auggie
+- Default command: `auggie --print "<instruction>"` for one-shot, CI-friendly output
+- Interactive mode: run without `--print` if you prefer a TUI (Vibe Kanban captures stdout/stderr)
+
+MCP (Model Context Protocol):
+- Auggie accepts repeatable `--mcp-config <path>` flags
+- To pass your MCP file(s), set a profile-specific `mcp_config_path` in `profiles.json`:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_path": "/absolute/path/to/mcp.json",
+      "AUGGIE": {
+        "command": { "base": "auggie", "params": ["--print"] }
+      },
+      "variants": []
+    }
+  ]
+}
+```
+
+Notes:
+- `mcp_config_path` overrides the default; unlike other agents, Auggie has no canonical user config file path we can auto-detect. Vibe Kanban will pass your path(s) as `--mcp-config` at runtime.
+- You can maintain multiple variants with different MCP configs and switch between them.
+
+
+### Auggie-specific flags
+
+Auggie accepts optional flags you can encode into profiles:
+- `auggie_model`: sets `--model <id>`
+- `auggie_rules`: array of paths; each produces a repeatable `--rules <path>`
+- `auggie_augment_token_file`: sets `--augment-token-file <path>`
+
+Example snippet in `profiles.json`:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "sonnet4",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
+      "variants": []
+    }
+  ]
+}
+```
+
+Supported models (from `auggie --list-models`):
+- Claude Sonnet 4 (id: `sonnet4`) – default
+- GPT-5 (id: `gpt5`)
+
+Example using `gpt5` instead:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": ["/abs/tools.json", "/abs/cloud.json"],
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_model": "gpt5",
+      "auggie_rules": ["/abs/rules/security.md", "/abs/rules/format.md"],
+      "auggie_augment_token_file": "/abs/token",
+      "variants": []
+    }
+  ]
+}
+```
+
+
 ## Documentation
+
+Follow-ups (best-effort):
+- Auggie supports `--continue` to resume the last saved session.
+- Vibe Kanban can use this for follow-ups when you enable it explicitly in your profile:
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "AUGGIE": { "command": { "base": "auggie", "params": ["--print"] } },
+      "auggie_enable_continue_followup": true
+    }
+  ]
+}
+```
+
+Notes:
+- This ignores VK’s session_id and resumes the most recent Auggie session.
+- If you need precise session targeting, keep this disabled until the Auggie CLI exposes an explicit session selection flag.
+
 
 Please head to the [website](https://vibekanban.com) for the latest documentation and user guides.
 
@@ -85,6 +187,29 @@ This will start the frontend and backend with live reloading. A blank DB will be
 ### Environment Variables
 
 The following environment variables can be configured at build time or runtime:
+
+
+### Example profiles.json (dev)
+
+During local development, Vibe Kanban reads `dev_assets/profiles.json` when available (debug builds) or uses embedded defaults.
+
+```json
+{
+  "profiles": [
+    {
+      "label": "auggie",
+      "mcp_config_paths": [
+        "/abs/path/tools.json",
+        "/abs/path/cloud.json"
+      ],
+      "AUGGIE": {
+        "command": { "base": "auggie", "params": ["--print"] }
+      },
+      "variants": []
+    }
+  ]
+}
+```
 
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|

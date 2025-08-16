@@ -1177,10 +1177,10 @@ impl GitService {
             // Fallback to SSH agent and key file authentication
             callbacks.credentials(|_url, username_from_url, _| {
                 // Try SSH agent first
-                if let Some(username) = username_from_url {
-                    if let Ok(cred) = Cred::ssh_key_from_agent(username) {
-                        return Ok(cred);
-                    }
+                if let Some(username) = username_from_url
+                    && let Ok(cred) = Cred::ssh_key_from_agent(username)
+                {
+                    return Ok(cred);
                 }
                 // Fallback to key file (~/.ssh/id_rsa)
                 let home = dirs::home_dir()

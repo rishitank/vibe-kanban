@@ -100,6 +100,7 @@ fn debounced_should_forward(event: &DebouncedEvent, gi: &Gitignore, canonical_ro
         .all(|path| path_allowed(path, gi, canonical_root))
 }
 
+#[allow(clippy::type_complexity)]
 pub fn async_watcher(
     root: PathBuf,
 ) -> Result<
@@ -152,6 +153,8 @@ pub fn async_watcher(
     Ok((debouncer, rx, canonical_root))
 }
 
+#[cfg(any(test, feature = "dev-utils"))]
+#[allow(dead_code)]
 async fn async_watch<P: AsRef<Path>>(path: P) -> Result<(), FilesystemWatcherError> {
     let (_debouncer, mut rx, _canonical_path) = async_watcher(path.as_ref().to_path_buf())?;
 
