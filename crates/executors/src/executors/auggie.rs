@@ -127,7 +127,9 @@ impl StandardCodingAgentExecutor for Auggie {
         );
 
 
-        let agent_cmd = Self::build_agent_cmd(&base_cmd, profile, &quoted_prompt);
+        // Safe to unwrap: profile presence validated above
+        let profile_ref = profile.unwrap();
+        let agent_cmd = Self::build_agent_cmd(&base_cmd, Some(profile_ref), &quoted_prompt);
 
         let mut command = Command::new(shell_cmd);
         command

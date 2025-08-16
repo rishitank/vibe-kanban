@@ -83,6 +83,9 @@ impl ProfileConfig {
             PathBuf::from(p)
         }
         let mut out = Vec::new();
+        if self.default.mcp_config_path.is_some() && self.default.mcp_config_paths.is_some() {
+            tracing::warn!("Both mcp_config_path and mcp_config_paths specified; using both");
+        }
         if let Some(p) = self.default.mcp_config_path.as_ref() {
             out.push(expand_tilde(p));
         }
